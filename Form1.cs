@@ -78,13 +78,24 @@ namespace DataBaseMarkDown
             _currentPageIndex = index;
             
             // 如果頁面是表格選擇頁，則需要動態創建
-            if (index == 1 && (_pages.Count <= 1 || !(_pages[1] is TableSelectionPage)))
+            if (index == 1)
             {
+                // 每次從第一頁進入第二頁時，總是重新創建表格選擇頁面
+                // 這樣可以確保表格選擇頁面使用最新的資料庫連線資訊
+                
                 // 創建表格選擇頁面
                 var tablePage = new TableSelectionPage(_dbInfo)
                 {
                     Dock = DockStyle.Fill
                 };
+                
+                // 如果之前已經做過表格選擇，則保留這些選擇
+                // 這樣當用戶從文檔生成頁返回時，可以看到之前的選擇
+                if (_selectedTables.Count > 0)
+                {
+                    // 將之前的選擇信息設置回新創建的表格選擇頁
+                    tablePage.SetSelectedTables(_selectedTables);
+                }
                 
                 tablePage.PreviousRequested += Page_PreviousRequested;
                 tablePage.NextRequested += Page_NextRequested;
@@ -101,8 +112,9 @@ namespace DataBaseMarkDown
             }
             
             // 如果頁面是文檔生成頁，則需要動態創建
-            if (index == 2 && (_pages.Count <= 2 || !(_pages[2] is DocumentGenerationPage)))
+            if (index == 2)
             {
+                // 每次進入第三頁時都重新創建，確保使用最新的表格選擇資訊
                 // 獲取選擇的表格
                 var tablePage = _pages[1] as TableSelectionPage;
                 if (tablePage != null)
@@ -131,8 +143,9 @@ namespace DataBaseMarkDown
             }
             
             // 如果頁面是保存文檔頁，則需要動態創建
-            if (index == 3 && (_pages.Count <= 3 || !(_pages[3] is SaveDocumentPage)))
+            if (index == 3)
             {
+                // 每次進入第四頁時都重新創建，確保使用最新生成的文檔
                 // 獲取生成的文檔
                 var docPage = _pages[2] as DocumentGenerationPage;
                 if (docPage != null)

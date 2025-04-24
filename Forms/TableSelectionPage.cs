@@ -214,6 +214,35 @@ namespace DataBaseMarkDown.Forms
             _isFirstLoad = true;
         }
 
+        // 設置選中的表格列表
+        public void SetSelectedTables(List<TableInfo> selectedTables)
+        {
+            if (selectedTables == null || selectedTables.Count == 0)
+                return;
+
+            // 尋找並更新本地表格的選擇狀態
+            foreach (var selectedTable in selectedTables)
+            {
+                var tableInList = _tables.Find(t => t.Name == selectedTable.Name && 
+                                               t.Schema == selectedTable.Schema);
+                                               
+                if (tableInList != null)
+                {
+                    tableInList.IsSelected = selectedTable.IsSelected;
+                    
+                    // 同步欄位選擇狀態
+                    foreach (var selectedColumn in selectedTable.Columns)
+                    {
+                        var columnInList = tableInList.Columns.Find(c => c.Name == selectedColumn.Name);
+                        if (columnInList != null)
+                        {
+                            columnInList.IsSelected = selectedColumn.IsSelected;
+                        }
+                    }
+                }
+            }
+        }
+
         // 更新下一步按鈕狀態
         private void UpdateNextButtonState()
         {
